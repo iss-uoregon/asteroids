@@ -1,0 +1,37 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environments
+.venv/
+env/
+.conda/
+*.egg-info/
+
+# Jupyter & IPython
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+
+# Output and logs
+*.log
+*.out
+
+# Data
+*.csv
+*.dat
+*.txt
+*.fits
+*.json
+*.pickle
+*.hdf5
+
+# YAML config (optional)
+config.yaml
