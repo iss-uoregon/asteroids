@@ -1,48 +1,100 @@
 # Asteroid Light Curve Analysis
 
-This repository contains tools for phasing, modeling, and analyzing asteroid light curves from multiple datasets. In its current iteration, these tools rely on data taken using Johnson and Sloan filtersets, alongside GAIA comparison star references. This program is divided into several modules that tackle different analysis and processing procedures, and an example format that was used for Pine Mountain Observatory's 665 Sabine project is included for reference. Each module can be ran individually, or consolidated into a single main.py file - however, several components iterate hundreds to thousands of times, so they have been divided
+This repository provides a modular pipeline for processing, phasing, and modeling asteroid light curves collected from multiple observatories. Designed around datasets from Pine Mountain Observatory and Nishi-Harima Astronomical Observatory's study of asteroid 665 Sabine, the tools can be adapted to similar photometric studies involving Johnson and Sloan filters and GAIA reference stars.
+
+The pipeline supports composite light curve generation, amplitude modeling, and uncertainty estimation, and is broken into modules that can be run independently or through a consolidated main.py.
 
 ## Features
-- Epoch folding with binned and weighted analysis
+- Epoch folding and bin-based light curve compositing
 - Fourier, spline, and polynomial amplitude fitting
-- Field star photometry error and Monte Carlo shuffle period error estimations
-- Modular pipeline for multi-source lightcurve datasets
+- Photometric uncertainty propagation using field stars and literature mags
+- Monte Carlo–based period error estimation via magnitude shuffling
+- Modular design for easy adaptation to new asteroid datasets
 
 ## Requirements
 See `requirements.txt`.
 
 ## Setup Environment
+Use the following to create and activate a Python environment:
 ```bash
 conda create -n asteroid-env python=3.10
 conda activate asteroid-env
 pip install -r requirements.txt
 ```
 
-## Usage
+## Usage Overview
 ### Config
-Create a user defined config.yaml following the blueprint of the Sabine data. For each subset of data (literature mags, comparison star photometry, target photometry, and fileset UTC-hour time stamps) ensure that the leading term in the dataset title is consistent - ie: kobe20 in the included example.
+Create a user defined config.yaml following the blueprint of the included Sabine config. 
+This defines paths to:
+    - Literature magnitudes
+    - Comparison star photometry
+    - Target object photometry
+    - UTC timestamps for each observation file
+    - Specific dataset filters
+
+For each dataset, ensure filenames are consistently prefixed (e.g., kobe20_lit.txt, kobe20_comp.txt).
 
 ### Imports
-Import the primary functions into your main.py, or equivalent file, following the example main.py file. For ease of import, keep your working file outside of the src folder.
+Import the primary functions into your main.py, or equivalent file, following the example modules. For ease of use, keep your working file outside of the src folder.
 
-### Parameters
-Create parameter dictionaries for each relevant dataset and bundle them in a list for use in folding algorithms:
-    ```example = get_dataset_params(
-        config,"dataset_header",period=4.29112,offset=None,drop_indices=[3,7],system='johnson',observatory='dataset_desig',binning=False, mag_offset=0.08
+### Parameter Dictionaries
+Use get_dataset_params from src/utils.py to define parameters for each dataset, and bundle them in a list inside src/params_list.py:
+    ```python
+        example = get_dataset_params(
+        config,"kobe20",period=4.29112,offset=None,
+        drop_indices=[3,7],system='johnson',observatory='k20',
+        binning=False, mag_offset=0.08
         )
     params_list = [example, example2, ...]```
 
 ### Lightcurve Module
-These functions take in target and comparison star photometric data, alonside relevant literature magnitudes, to produce phased, composited lightcurves with target magnitude uncertainties. Notably, these functions rely on use of GAIA DR2 comparison stars, whose conversion factors have been hard-coded into Johnson V and SDSS g' passbands using literature equations. Future iterations of these functions will prompt user input for any necessary conversions. An example template is included in Module 1.
+These functions generate phased light curves with uncertainties, and plot composite lightcurves at given periods:
 
-Relevant function calls:
-    calculate_uncertainty_from_comparisons : creates a comparative spread of comparison stars and their ability to accurately measure the magnitude of the remaining field stars. Function fits a Gaussian to the spread of deviations from literature values, and extracts the 1-sigma width of the distribution, producing an estimated error for the collective comparison stars.
-    
-    calculate_total_magnitude_uncertainty : calculates the total magnitude uncertainty for a given file set taking the three main sources of error into account: uncertainties from filter set transformations, observed photometric uncertainties of the target, and comparative uncertainties of each reference field star and their photometric quality using results from calculate_uncertainty_from_comparisons.
+    calculate_total_magnitude_uncertainty :
+    Combines uncertainty contributions from comparison stars, target photometry, and filter conversions (e.g., Gaia → SDSS g′ or Johnson V).
 
-    phase_lightcurve : produces a table of binned or individualized magnitude and phase data for a given file set at an input trial period. This function is essential in procedures for other modules, but can also be individually called to assess the phasing results of a dataset.
+    phase_lightcurve :
+    Folds and bins each dataset at a trial period to prepare it for modeling or composite plotting.
 
-    plot_composite_lightcurve : plotting function that takes in each relevant file set and produces a composite, phased lightcurve at a trial period. Function is setup to output in the standard expected of the Minor Planet Bulletin. This function is best used after the folding routine explored in Module 2 as identified the best-fit period for target, but can be ran at any time for visualization purposes.
+    plot_composite_lightcurve :
+    Creates publication-ready light curve plots for submission (e.g., to the Minor Planet Bulletin). Typically used once a best-fit period is determined.
+
+See drivers/magnitude_module.py for usage.
 
 ### Folding Module
-These functions are responsible for the epoch folding routine, associated error functions, and 
+These functions scan and fold datasets over trial periods, scanning for phase alignment :
+
+    scan_count_periods :
+    Precomputes normalized bin weights used in folding routines. Should be cached before running folding analysis.
+
+    calculate_sigma :
+    Calculates alignment strength (sigma-from-mean) at a single period. Can shuffle magnitudes for uncertainty testing.
+
+    scan_sigma_periods :
+    Iteratively runs calculate_sigma across a range of periods. Returns a sigma-vs-period curve for best-fit estimation.
+
+    fit_amplitude_models :
+    Fits and overlays polynomial, spline, and Fourier amplitude models at a trial period. Useful for deriving peak-to-peak brightness ranges.
+
+See drivers/folding_module.py for usage.
+
+### Shuffle Module
+Monte Carlo routines to estimate period uncertainty:
+
+    calculate_sigma (with shuffled_mags=True) :
+    Shuffles magnitudes within each dataset before folding.
+
+    estimate_sigma_distribution :
+    Repeats calculate_sigma over multiple trials at a fixed period. Fits a Gaussian to the resulting sigma histogram and returns the one-sigma width as an uncertainty.
+
+Example usage can be found in drivers/shuffle_module.py.
+
+Note: On sparse datasets, aliasing and cycle count ambiguity may dominate true error, limiting shuffle accuracy.
+
+## Citation
+If you use or adapt this pipeline, please cite the original authors or relevant publication describing the Sabine analysis:
+
+## Future Improvements
+- Add user-defined filter conversion support
+- Generalize photometry input handling beyond Gaia references
+- Speed up large-scale period scans using multiprocessing
