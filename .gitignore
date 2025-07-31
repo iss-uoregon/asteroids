@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 # Environments
+.env
 .venv/
 env/
 .conda/
@@ -25,13 +26,8 @@ Thumbs.db
 *.out
 
 # Data
-*.csv
 *.dat
-*.txt
 *.fits
 *.json
 *.pickle
 *.hdf5
-
-# YAML config (optional)
-config.yaml

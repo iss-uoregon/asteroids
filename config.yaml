@@ -1,0 +1,111 @@
+data:
+  datasets:
+    - name: kobe20_utc
+      path: data/raw/Kobe2020UTC.txt
+      delimiter: comma
+      columns: UTC
+      skiprows: 0
+
+    - name: kobe20_comp
+      path: data/raw/KobeSabine2020CompStarsGaia.txt
+      delimiter: tab
+      regex_columns:
+        magnitude: '^Source-Sky.*'
+      skiprows: 0
+
+    - name: kobe20_target
+      path: data/raw/KobeSabine2020.Table1.txt
+      delimiter: tab
+      regex_columns:
+        magnitude: '^Source-Sky.*'
+        error: '^Source_Error.*'
+      "light_time": {
+        "target_tag": "Sabine",
+        "epoch": 2459086.1}
+      skiprows: 0
+
+    - name: kobe20_gaia
+      path: data/raw/Kobe20GaiaField.csv
+      delimiter: comma
+      regex_columns:
+        magnitude: 'mean_mag'
+      filters:
+        - column: phot_g_mean_mag
+          operator: '<'
+          value: 14
+      drop_rows: [7]
+      skiprows: 0
+
+    - name: kobe21_utc
+      path: data/raw/Kobe2021UTC.txt
+      delimiter: comma
+      columns: UTC
+      skiprows: 0
+
+    - name: kobe21_comp
+      path: data/raw/KobeSabine2021CompStarsGaia.txt
+      delimiter: tab
+      regex_columns:
+        magnitude: '^Source-Sky.*'
+      skiprows: 0
+
+    - name: kobe21_target
+      path: data/raw/KobeSabine2021ReducedTarget.txt
+      delimiter: tab
+      regex_columns:
+        magnitude: '^Source-Sky.*'
+        error: '^Source_Error.*'
+      drop_rows: [0]
+      "light_time": {
+        "target_tag": "Sabine",
+        "epoch": 2459526.0}
+      skiprows: 0
+
+    - name: kobe21_gaia
+      path: data/raw/sabine21_gaia_region.csv
+      delimiter: comma
+      regex_columns:
+        magnitude: 'mean_mag'
+      filters:
+        - column: phot_g_mean_mag
+          operator: '<'
+          value: 15
+      drop_rows: [5,7,8,10,11,14]
+      skiprows: 0
+
+    - name: pmo_utc
+      path: data/raw/PMO0815UTC.txt
+      delimiter: comma
+      columns: UTC
+      skiprows: 0
+
+    - name: pmo_comp
+      path: data/raw/PMOSabine0815CompStarsGaia.txt
+      delimiter: tab
+      regex_columns:
+        magnitude: '^Source-Sky.*'
+      skiprows: 0
+
+    - name: pmo_target
+      path: data/raw/PMOSabine0815.Table1.txt
+      delimiter: tab
+      regex_columns:
+        magnitude: '^Source-Sky.*'
+        error: '^Source_Error.*'
+      "light_time": {
+        "target_tag": "Sabine",
+        "epoch": 2459077.9}
+      skiprows: 0
+
+    - name: pmo_gaia
+      path: data/raw/PMO0815GaiaField.csv
+      delimiter: comma
+      regex_columns:
+        magnitude: 'mean_mag'
+      filters:
+        - column: phot_g_mean_mag
+          operator: '<'
+          value: 12
+      drop_rows: [20]
+      drop_rows_from: 22  # drop all rows from this index onward
+      skiprows: 0
