@@ -57,8 +57,8 @@ def main():
     mean_err = (pmo_terr + k20_terr + k21_terr) / 3
     results = fit_amplitude_models(x_sorted, y_sorted, period=best_period, mean_err=mean_err, deg=6, smooth=0.003)
     # print(results)
-    
-    print(f"Elapsed time: {time.time() - start:.2f} sec")
 
 if __name__ == "__main__":
     main()
+
+print(f"Elapsed time: {time.time() - start:.2f} sec")
