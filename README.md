@@ -22,6 +22,15 @@ conda activate asteroid-env
 pip install -r requirements.txt
 ```
 
+## Python Path Configuration
+If you encounter an ImportError when running scripts in the drivers/ folder, you may need to set the Python path manually so that Python can locate the src/ directory:
+
+On macOS/Linux (bash):
+    export PYTHONPATH=.
+
+On Windows PowerShell:
+    $env:PYTHONPATH = "."
+
 ## Usage Overview
 ### Config
 Create a user defined config.yaml following the blueprint of the included Sabine config. 
