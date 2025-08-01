@@ -3,10 +3,6 @@ from src.error_functions import calculate_total_magnitude_uncertainty
 from src.utils import plot_composite_lightcurve, get_phase_params
 from src.params_list import pmo, kobe20, kobe21, params_list
 
-# for testing, need this call:
-# $env:PYTHONPATH = "."
-# python drivers\magnitude_module.py
-
 """
 Driver file for demonstrating magnitude uncertainty calculations,
 phasing light curves, and plotting composite light curves using
